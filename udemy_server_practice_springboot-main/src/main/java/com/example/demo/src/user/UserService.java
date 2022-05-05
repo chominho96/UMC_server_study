@@ -36,9 +36,9 @@ public class UserService {
 
     public PostUserRes createUser(PostUserReq postUserReq) throws BaseException {
         // 이메일 중복 확인
-        if(userProvider.checkEmail(postUserReq.getEmail()) ==1){
+        /*if(userProvider.checkEmail(postUserReq.getEmail()) ==1){
             throw new BaseException(POST_USERS_EXISTS_EMAIL);
-        }
+        }*/
 
         String pwd;
         try{

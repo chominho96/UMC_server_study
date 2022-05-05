@@ -1,17 +1,31 @@
 package com.example.demo.src.user.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
+
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
+@ToString
+@Entity
 @AllArgsConstructor
+@NoArgsConstructor
 public class User {
-    private int userIdx;
-    private String name;
+
+    @Id
+    private Long userIdx;
     private String nickName;
-    private String phone;
-    private String email;
-    private String password;
+    private String name;
+    private String profileImgUrl;
+    private String website;
+    private String introduce;
+    private String status;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
+    //private String phone;
+    //private String email;
+    //private String password;
+
 }
