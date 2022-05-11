@@ -1,7 +1,9 @@
 package com.example.demo;
 
+import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Bean;
 
 @SpringBootApplication
 public class DemoApplication {
@@ -14,5 +16,6 @@ public class DemoApplication {
         long heapSize = Runtime.getRuntime().totalMemory();
         System.out.println("HEAP Size(M) : "+ heapSize / (1024*1024) + " MB");
     }
+
 
 }

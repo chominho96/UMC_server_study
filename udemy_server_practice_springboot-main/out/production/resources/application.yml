@@ -7,13 +7,15 @@ spring:
 
   datasource:
     platform: mysql
-    url:  jdbc:mysql://localhost:3306/umc_instagram?serverTimezone=Asia/Seoul
+    url: jdbc:mysql://localhost:3306/umc_instagram?serverTimezone=Asia/Seoul
     username: chominho96
     password: whalsgh9664!
     driver-class-name: com.mysql.cj.jdbc.Driver # mysql 8버전
     # driver-class-name: com.mysql.jdbc.Driver # mysql 5버전
 
   jpa:
+    hibernate:
+      ddl-auto: create
     properties:
       hibernate:
         show_sql: true

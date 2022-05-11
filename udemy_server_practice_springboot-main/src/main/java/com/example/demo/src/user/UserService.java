@@ -3,15 +3,21 @@ package com.example.demo.src.user;
 
 import com.example.demo.config.BaseException;
 
+import com.example.demo.config.BaseResponse;
+import com.example.demo.src.user.dto.UserDeleteDTO;
 import com.example.demo.src.user.model.PatchUserReq;
 import com.example.demo.src.user.model.PostUserReq;
 import com.example.demo.src.user.model.PostUserRes;
+import com.example.demo.src.user.model.User;
+import com.example.demo.src.user.repository.UserRepository;
 import com.example.demo.utils.JwtService;
 import com.example.demo.utils.SHA256;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.Optional;
 
 import static com.example.demo.config.BaseResponseStatus.*;
 
@@ -23,14 +29,15 @@ public class UserService {
     private final UserDao userDao;
     private final UserProvider userProvider;
     private final JwtService jwtService;
+    private final UserRepository userRepository;
 
 
     @Autowired
-    public UserService(UserDao userDao, UserProvider userProvider, JwtService jwtService) {
+    public UserService(UserDao userDao, UserProvider userProvider, JwtService jwtService, UserRepository userRepository) {
         this.userDao = userDao;
         this.userProvider = userProvider;
         this.jwtService = jwtService;
-
+        this.userRepository = userRepository;
     }
 
 
@@ -66,6 +73,20 @@ public class UserService {
             }
         } catch(Exception exception){
             throw new BaseException(DATABASE_ERROR);
+        }
+    }
+
+    public BaseResponse<String> deleteUser(UserDeleteDTO dto) {
+        Optional<User> findUser = userRepository.findById(dto.getUserIdx());
+
+        if (findUser.isPresent()) {
+            // 삭제하려는 User가 DB에 존재하면
+            userRepository.delete(findUser.get());
+            return new BaseResponse<>(SUCCESS);
+        }
+        else {
+            // 삭제하려는 User가 DB에존재하지 않으면
+            return new BaseResponse<>(REQUEST_ERROR);
         }
     }
 

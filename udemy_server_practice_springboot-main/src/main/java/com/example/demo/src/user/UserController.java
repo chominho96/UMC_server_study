@@ -2,7 +2,6 @@ package com.example.demo.src.user;
 
 import com.example.demo.config.BaseException;
 import com.example.demo.config.BaseResponse;
-import com.example.demo.config.BaseResponseStatus;
 import com.example.demo.src.user.dto.UserDeleteDTO;
 import com.example.demo.src.user.model.*;
 import com.example.demo.src.user.repository.UserRepository;
@@ -11,16 +10,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 import static com.example.demo.config.BaseResponseStatus.*;
@@ -46,6 +41,7 @@ public class UserController {
 
 
 
+
     public UserController(UserProvider userProvider, UserService userService, JwtService jwtService, UserRepository userRepository){
         this.userProvider = userProvider;
         this.userService = userService;
@@ -60,49 +56,34 @@ public class UserController {
      * [GET] /users
      * 이메일 검색 조회 API
      * [GET] /users? Email=
-     * @return BaseResponse<GetUserRes>
+     * @return BaseResponse<GetUserFeedRes>
      */
     //Query String
-   /* @ResponseBody
-    @GetMapping("") // (GET) 127.0.0.1:9000/users
-    public BaseResponse<GetUserRes> getUsers(@RequestParam(required = true) String Email) {
+    @ResponseBody
+    @GetMapping("/{userIdx}") // (GET) 127.0.0.1:9000/users
+    public BaseResponse<GetUserFeedRes> getUsers(@PathVariable("userIdx") Long userIdx) {
         try{
-            // TODO: email 관련한 짧은 validation 예시입니다. 그 외 더 부가적으로 추가해주세요!
-            if(Email.length()==0){
-                return new BaseResponse<>(POST_USERS_EMPTY_EMAIL);
-            }
-            // 이메일 정규표현
-            if(!isRegexEmail(Email)){
-                return new BaseResponse<>(POST_USERS_INVALID_EMAIL);
-            }
-            GetUserRes getUsersRes = userProvider.getUsersByEmail(Email);
-            return new BaseResponse<>(getUsersRes);
+
+            GetUserFeedRes getUserFeedRes = userProvider.retrieveUserFeed(1, userIdx);
+            return new BaseResponse<>(getUserFeedRes);
         } catch(BaseException exception){
             return new BaseResponse<>((exception.getStatus()));
         }
-    }*/
+    }
 
 
     @ResponseBody
-    @GetMapping("/{userIdx}") // (GET) 127.0.0.1:9000/users/:userIdx
-    public BaseResponse<GetUserRes> getUserByIdx(@PathVariable("userIdx")Long userIdx) {
+    @GetMapping("/{userIdx}/X") // (GET) 127.0.0.1:9000/users/:userIdx
+    public BaseResponse<GetUserRes> getUserByIdx(@PathVariable("userIdx") Long userIdx) {
         System.out.println("여기 들어옴");
         log.info("여기 들어옴");
         try {
-            Optional<User> findUser = userRepository.findByUserIdx(userIdx);
-            return new BaseResponse<>(new GetUserRes(userIdx, findUser.get().getName(), findUser.get().getNickName()));
+            Optional<User> findUser = userRepository.findById(userIdx);
+            return new BaseResponse<>(new GetUserRes(userIdx, findUser.get().getName(), findUser.get().getNickName(), findUser.get().getEmail()));
 
-            /*GetUserRes getUsersRes = userProvider.getUsersByIdx(userIdx);
-            return new BaseResponse<>(getUsersRes);*/
         }catch (Exception e) {
             return new BaseResponse<>(REQUEST_ERROR);
         }
-        /*catch(BaseException exception) {
-            System.out.println("컨트롤러 요청 실패");
-            log.info("여기서 요청 실패");
-
-            return new BaseResponse<>((exception.getStatus()));
-        }*/
     }
 
     /**
@@ -158,24 +139,13 @@ public class UserController {
         }
     }
 
-    @GetMapping("/test")
-    public String getAllUsers() {
-        List<User> all = userRepository.findAll();
-        String result = "";
-        for (User u : all) {
-            result += u;
-        }
-
-        return result;
-
-    }
 
     /**
      *  User Delete API
      */
     @PostMapping("/delete")
     public BaseResponse<String> deleteUser(@Valid @RequestBody UserDeleteDTO dto) {
-        return new BaseResponse<>("SUCCESS");
+        return userService.deleteUser(dto);
     }
 
     /**
@@ -187,7 +157,7 @@ public class UserController {
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public BaseResponse<String> handleHttpMessageNotReadableException(
             HttpMessageNotReadableException ex) {
-        // 아예 잘못된 형식으로 request 를 요청할 경우 예외 발생
+        // @Valid 애노테이션이 있는 부분에서 형식적 Validation이 이루어지고, 이를 실패하면 해당 ExceptionHandler가 예외를 핸들링
         return new BaseResponse<>(REQUEST_ERROR);
     }
 
