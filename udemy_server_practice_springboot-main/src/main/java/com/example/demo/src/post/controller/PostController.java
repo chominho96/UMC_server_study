@@ -12,9 +12,12 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 import static com.example.demo.config.BaseResponseStatus.REQUEST_ERROR;
@@ -41,8 +44,11 @@ public class PostController {
 
     }
 
-    @GetMapping("/post/all/{userIdx}")
-    public BaseResponse<List<PostResDTO>> getAllPosts(@PathVariable("userIdx") Long userIdx) {
+    @GetMapping(path = {"/posts", "/posts/{userIdx}"})
+    public BaseResponse<List<PostResDTO>> getAllPosts(@PathVariable(value = "userIdx", required = false) Long userIdx) {
+        if (userIdx == null) {
+            return new BaseResponse<>(REQUEST_ERROR);
+        }
         try {
             List<PostResDTO> postResDTO = postService.retrievePosts(userIdx);
             return new BaseResponse<>(postResDTO);
@@ -52,16 +58,4 @@ public class PostController {
         }
     }
 
-    /**
-     *
-     * DTO validation 오류 (Path Vairable 관련)
-     *
-     */
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
-    public BaseResponse<String> handleMethodArgumentTypeMismatchException(
-            HttpMessageNotReadableException ex) {
-        // Path Variable이 없을 때 발생하는 예외 핸들링
-        return new BaseResponse<>(REQUEST_ERROR);
-    }
 }
