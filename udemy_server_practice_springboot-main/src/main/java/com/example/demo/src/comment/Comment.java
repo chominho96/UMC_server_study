@@ -18,18 +18,18 @@ public class Comment extends BaseEntity {
     @Column(name = "comment_idx")
     private Long id;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "post_idx")
     private Post post;
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_idx")
     private User user;
 
     @Column(name = "content")
     private String content;
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "parent_comment_idx")
     private Comment comment;
 

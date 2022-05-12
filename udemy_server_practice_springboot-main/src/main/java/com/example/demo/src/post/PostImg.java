@@ -15,7 +15,7 @@ public class PostImg extends BaseEntity {
     @Column(name = "post_img_url_idx")
     private Long postImgUrlIdx;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "post_idx")
     private Post post;
 
