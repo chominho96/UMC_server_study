@@ -2,11 +2,15 @@ package com.example.demo.src.post;
 
 import com.example.demo.src.comment.Comment;
 import com.example.demo.src.common.BaseEntity;
+import com.example.demo.src.post.dto.CreatePostDTO;
+import com.example.demo.src.post.dto.UpdatePostDTO;
 import com.example.demo.src.user.model.User;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Fetch;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.core.parameters.P;
 
 import javax.persistence.*;
 import java.util.List;
@@ -14,6 +18,7 @@ import java.util.List;
 
 @Entity
 @Getter
+@NoArgsConstructor
 public class Post extends BaseEntity {
 
     @Id
@@ -40,5 +45,27 @@ public class Post extends BaseEntity {
 
     @OneToMany(mappedBy = "post")
     private List<Comment> commentList;
+
+
+    private Post(User user, String content) {
+        this.user = user;
+        this.content = content;
+        this.likeCount = 0L;
+        this.status = PostStatus.ACTIVE;
+
+    }
+
+    public static Post createPost(User user, CreatePostDTO createPostDTO) {
+        return new Post(user, createPostDTO.getContent());
+    }
+
+    public void updatePost(UpdatePostDTO updatePostDTO) {
+        this.content = updatePostDTO.getContent();
+    }
+
+    public void deletePost() {
+        this.status = PostStatus.DELETED;
+    }
+
 
 }
