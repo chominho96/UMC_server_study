@@ -95,14 +95,6 @@ public class UserController {
     @ResponseBody
     @PostMapping("") // (POST) 127.0.0.1:9000/users
     public BaseResponse<PostUserRes> createUser(@RequestBody PostUserReq postUserReq) {
-        // TODO: email 관련한 짧은 validation 예시입니다. 그 외 더 부가적으로 추가해주세요!
-        if(postUserReq.getEmail() == null){
-            return new BaseResponse<>(POST_USERS_EMPTY_EMAIL);
-        }
-        // 이메일 정규표현
-        if(!isRegexEmail(postUserReq.getEmail())){
-            return new BaseResponse<>(POST_USERS_INVALID_EMAIL);
-        }
         try{
             PostUserRes postUserRes = userService.createUser(postUserReq);
             return new BaseResponse<>(postUserRes);
@@ -122,7 +114,7 @@ public class UserController {
         try {
             //TODO: jwt는 다음주차에서 배울 내용입니다!
             //jwt에서 idx 추출.
-            int userIdxByJwt = jwtService.getUserIdx();
+            Long userIdxByJwt = jwtService.getUserIdx();
             //userIdx와 접근한 유저가 같은지 확인
             if(userIdx != userIdxByJwt){
                 return new BaseResponse<>(INVALID_USER_JWT);
@@ -158,7 +150,7 @@ public class UserController {
     public BaseResponse<String> handleHttpMessageNotReadableException(
             HttpMessageNotReadableException ex) {
         // @Valid 애노테이션이 있는 부분에서 형식적 Validation이 이루어지고, 이를 실패하면 해당 ExceptionHandler가 예외를 핸들링
-        return new BaseResponse<>(REQUEST_ERROR);
+        return new BaseResponse<>(ex.getMessage());
     }
 
 }

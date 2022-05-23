@@ -9,6 +9,7 @@ import com.example.demo.src.post.repository.PostQueryRepository;
 import com.example.demo.src.post.repository.PostRepository;
 import com.example.demo.src.user.model.*;
 import com.example.demo.src.user.repository.UserRepository;
+import com.example.demo.utils.JwtService;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -31,6 +32,7 @@ public class PostService {
     private final UserRepository userRepository;
     private final JPAQueryFactory queryFactory;
     private final PostQueryRepository postQueryRepository;
+    private final JwtService jwtService;
 
     public List<PostDTO> findPostsByUserIdx(Long userIdx) throws BaseException {
 
@@ -60,6 +62,8 @@ public class PostService {
     }
 
     public CreatePostResDTO createPost(Long userIdx, CreatePostDTO createPostDTO) throws BaseException {
+
+
 
         Optional<User> findUser = userRepository.findById(userIdx);
 

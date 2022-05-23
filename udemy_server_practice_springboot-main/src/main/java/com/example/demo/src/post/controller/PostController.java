@@ -8,6 +8,7 @@ import com.example.demo.src.post.dto.*;
 import com.example.demo.src.post.repository.PostQueryRepository;
 import com.example.demo.src.post.service.PostService;
 import com.example.demo.src.user.model.GetUserPostsRes;
+import com.example.demo.utils.JwtService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -19,9 +20,9 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import java.util.List;
+import java.util.Objects;
 
-import static com.example.demo.config.BaseResponseStatus.REQUEST_ERROR;
-import static com.example.demo.config.BaseResponseStatus.USERS_EMPTY_USER_ID;
+import static com.example.demo.config.BaseResponseStatus.*;
 
 @RestController
 @Slf4j
@@ -30,6 +31,7 @@ public class PostController {
 
     private final PostService postService;
     private final PostQueryRepository postQueryRepository;
+    private final JwtService jwtService;
 
 
     @PostMapping("/post/{userIdx}")
@@ -62,6 +64,13 @@ public class PostController {
     public BaseResponse<CreatePostResDTO> createPost(@RequestBody CreatePostDTO createPostDTO) {
 
         try {
+            // JWT 토큰 인증 절차 추가
+            Long userIdx = jwtService.getUserIdx();
+            // request의 JWT와 DTO의 jwt가 일치하는지의 로직 추가
+            if (!Objects.equals(createPostDTO.getUserIdx(), userIdx)) {
+                return new BaseResponse<>(INVALID_USER_JWT);
+            }
+
             CreatePostResDTO createPostResDTO = postService.createPost(createPostDTO.getUserIdx(), createPostDTO);
             return new BaseResponse<>(createPostResDTO);
         }

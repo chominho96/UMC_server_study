@@ -11,7 +11,6 @@ import java.time.LocalDateTime;
 @Getter
 @ToString
 @Entity
-@AllArgsConstructor
 @NoArgsConstructor
 public class User {
 
@@ -25,6 +24,9 @@ public class User {
 
     @Column(name = "name")
     private String name;
+
+    @Column(name = "pwd")
+    private String password;
 
     @Column(name = "email")
     private String email;
@@ -46,5 +48,18 @@ public class User {
 
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
+
+    private User(String nickName, String name, String password, String email) {
+        this.nickName = nickName;
+        this.name = name;
+        this.password = password;
+        this.email = email;
+        this.status = "ACTIVE";
+
+    }
+
+    public static User createUser(PostUserReq postUserReq, String pwd) {
+        return new User(postUserReq.getNickName(), postUserReq.getName(), pwd, postUserReq.getEmail());
+    }
 
 }

@@ -17,12 +17,14 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.util.Optional;
 
 import static com.example.demo.config.BaseResponseStatus.*;
 
 // Service Create, Update, Delete 의 로직 처리
 @Service
+@Transactional
 public class UserService {
     final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -43,23 +45,25 @@ public class UserService {
 
     public PostUserRes createUser(PostUserReq postUserReq) throws BaseException {
         // 이메일 중복 확인
-        /*if(userProvider.checkEmail(postUserReq.getEmail()) ==1){
+        if (userRepository.findByEmail(postUserReq.getEmail()).isPresent()) {
             throw new BaseException(POST_USERS_EXISTS_EMAIL);
-        }*/
+        }
 
         String pwd;
         try{
             //암호화
-            pwd = new SHA256().encrypt(postUserReq.getPassword());  postUserReq.setPassword(pwd);
+            pwd = SHA256.encrypt(postUserReq.getPassword());
+            postUserReq.setPassword(pwd);
         } catch (Exception ignored) {
             throw new BaseException(PASSWORD_ENCRYPTION_ERROR);
         }
         try{
-            int userIdx = userDao.createUser(postUserReq);
+            User user = User.createUser(postUserReq, pwd);
+            userRepository.save(user);
             //jwt 발급.
             // TODO: jwt는 다음주차에서 배울 내용입니다!
-            String jwt = jwtService.createJwt(userIdx);
-            return new PostUserRes(jwt,userIdx);
+            String jwt = jwtService.createJwt(user.getId());
+            return new PostUserRes(jwt, user.getId());
         } catch (Exception exception) {
             throw new BaseException(DATABASE_ERROR);
         }
