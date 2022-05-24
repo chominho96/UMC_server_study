@@ -2,6 +2,7 @@ package com.example.demo.src.login.service;
 
 import com.example.demo.config.BaseException;
 import com.example.demo.config.BaseResponseStatus;
+import com.example.demo.config.redis.RedisService;
 import com.example.demo.src.login.dto.LoginDTO;
 import com.example.demo.src.login.response.LoginResDTO;
 import com.example.demo.src.user.model.User;
@@ -25,6 +26,7 @@ public class LoginService {
 
     private final JwtService jwtService;
     private final UserRepository userRepository;
+    private final RedisService redisService;
 
     public LoginResDTO login(LoginDTO loginDTO) throws BaseException {
         Optional<User> findUser = userRepository.findByEmail(loginDTO.getEmail());
@@ -45,6 +47,10 @@ public class LoginService {
         if (findUser.get().getPassword().equals(encryptPassword)) {
             Long userIdx = findUser.get().getId();
             String jwt = jwtService.createJwt(userIdx);
+
+            // Redis에 Token 저장
+            redisService.setValues(jwt, String.valueOf(findUser.get().getId()));
+
             return new LoginResDTO(userIdx, jwt);
         }
         else{

@@ -73,6 +73,10 @@ dependencies {
     //querydsl 추가
     implementation 'com.querydsl:querydsl-apt'
 
+    // Spring Redis
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+    testImplementation group: 'it.ozimov', name: 'embedded-redis', version: '0.7.2'
+
 
 
 

@@ -74,8 +74,20 @@ public class PostController {
             CreatePostResDTO createPostResDTO = postService.createPost(createPostDTO.getUserIdx(), createPostDTO);
             return new BaseResponse<>(createPostResDTO);
         }
-        catch (BaseException e) {
-            return new BaseResponse<>(e.getStatus());
+        catch (BaseException e1) {
+            // Refresh Token이 존재하여, Access Token을 재발급해야하는 경우
+            try {
+                String newAccessToken = jwtService.updateToken();
+                // TODO : 새로운 토큰 발급까지 진행하고, 이후에 Header 삽입에 대해서 진행
+                // 예제이므로 이를 해당 컨트롤러 메서드에서 일회성으록 구현
+
+                // 이후 정상 진행
+                CreatePostResDTO createPostResDTO = postService.createPost(createPostDTO.getUserIdx(), createPostDTO);
+                return new BaseResponse<>(createPostResDTO);
+            }
+            catch (Exception e2) {
+                return new BaseResponse<>(e1.getStatus());
+            }
         }
 
     }
